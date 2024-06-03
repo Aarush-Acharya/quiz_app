@@ -4,6 +4,8 @@ import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_animation_text/flutter_gradient_animation_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
+import 'package:quiz_app/notifiers_providers/page_state_provider.dart';
 import 'package:quiz_app/notifiers_providers/quiz_notifier.dart';
 import 'package:quiz_app/notifiers_providers/user_answers_provider.dart';
 import 'package:quiz_app/theme/colors.dart';
@@ -19,6 +21,8 @@ class GiveQuiz extends ConsumerWidget {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     String quizName = args["quiz_name"];
     Quiz quiz = ref.read(asyncQuizzesProvider.notifier).getQuizByName(quizName);
+    int selectedPage = ref.watch(pageStateProvider);
+    PageController _pageController = PageController(initialPage: selectedPage);
     return Scaffold(
       body: SingleChildScrollView(
           child: Padding(
@@ -98,51 +102,85 @@ class GiveQuiz extends ConsumerWidget {
             const SizedBox(
               height: 60,
             ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 380,
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (page) {
+                      ref
+                          .read(pageStateProvider.notifier)
+                          .update((state) => page);
+                    },
+                    children: quiz.questions.map((ques) {
+                      int index = quiz.questions.indexOf(ques);
+                      Options groupValue = ref.watch(userAnswers)[index];
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            ques.question,
+                            style:
+                                const TextStyle(color: AppColors.headingWhite),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text('${ques.marks.toString()} Marks'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Column(
+                            children: ques.options.map((option) {
+                              Options optionValue =
+                                  Options.values[ques.options.indexOf(option)];
+                              return ListTile(
+                                title: Text(option),
+                                leading: Radio(
+                                  value: optionValue,
+                                  groupValue: groupValue,
+                                  onChanged: (value) {
+                                    ref
+                                        .read(userAnswers.notifier)
+                                        .update((state) {
+                                      final updatedAnswers = [...state];
+                                      updatedAnswers[index] = value!;
+                                      return updatedAnswers;
+                                    });
+                                    // groupValue = option_value;
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          )
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+                SizedBox(
+                  child: PageViewDotIndicator(
+                    currentItem: selectedPage,
+                    count: quiz.questions.length,
+                    unselectedColor: AppColors.neutralGrey,
+                    selectedColor: AppColors.blue,
+                    duration: const Duration(milliseconds: 200),
+                    boxShape: BoxShape.rectangle,
+                    onItemClicked: (index) {
+                      _pageController.animateToPage(
+                        index,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
             SizedBox(
-              height: 500,
-              child: PageView(
-                children: quiz.questions.map((ques) {
-                  int index = quiz.questions.indexOf(ques);
-                  Options groupValue = ref.watch(userAnswers)[index];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ques.question,
-                        style: const TextStyle(color: AppColors.headingWhite),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Text('${ques.marks.toString()} Marks'),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Column(
-                        children: ques.options.map((option) {
-                          Options optionValue =
-                              Options.values[ques.options.indexOf(option)];
-                          return ListTile(
-                            title: Text(option),
-                            leading: Radio(
-                              value: optionValue,
-                              groupValue: groupValue,
-                              onChanged: (value) {
-                                ref.read(userAnswers.notifier).update((state) {
-                                  final updatedAnswers = [...state];
-                                  updatedAnswers[index] = value!;
-                                  return updatedAnswers;
-                                });
-                                // groupValue = option_value;
-                              },
-                            ),
-                          );
-                        }).toList(),
-                      )
-                    ],
-                  );
-                }).toList(),
-              ),
+              height: 150,
             ),
             Align(
               alignment: Alignment.bottomCenter,
