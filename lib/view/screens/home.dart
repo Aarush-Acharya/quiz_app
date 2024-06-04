@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_animation_text/flutter_gradient_animation_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quiz_app/notifiers_providers/auth_provider.dart';
 import 'package:quiz_app/notifiers_providers/quiz_notifier.dart';
 import 'package:quiz_app/notifiers_providers/section_state_provider.dart';
 import 'package:quiz_app/theme/colors.dart';
+import 'package:quiz_app/utils/routes.dart';
 import 'package:quiz_app/view/widgets/create_quiz_button.dart';
 import 'package:quiz_app/view/widgets/quiz_widget.dart';
 
@@ -24,17 +26,55 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 60),
-                child: GradientAnimationText(
-                  text: Text(
-                    'Quizzes',
-                    style: TextStyle(
-                      fontSize: 50,
+              Padding(
+                padding: const EdgeInsets.only(top: 60),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const GradientAnimationText(
+                      text: Text(
+                        'Quizzes',
+                        style: TextStyle(
+                          fontSize: 50,
+                        ),
+                      ),
+                      colors: [AppColors.blue, AppColors.red],
+                      duration: Duration(seconds: 2),
                     ),
-                  ),
-                  colors: [AppColors.blue, AppColors.red],
-                  duration: Duration(seconds: 2),
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title:
+                                    const Text("Do you wish to do with your account"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () async {
+                                        await auth0
+                                            .webAuthentication(scheme: 'demo')
+                                            .logout();
+                                        Navigator.pushNamed(
+                                            context, appRoutes.login);
+                                      },
+                                      child: const Text("Logout")),
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("Nothing"))
+                                ],
+                              );
+                            });
+                      },
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundImage: NetworkImage(
+                            credential!.user.pictureUrl.toString()),
+                      ),
+                    )
+                  ],
                 ),
               ),
               const SizedBox(
@@ -50,7 +90,8 @@ class HomeScreen extends ConsumerWidget {
                               side: BorderSide(
                                   color: isLive
                                       ? const Color.fromARGB(24, 255, 255, 255)
-                                      : const Color.fromARGB(59, 255, 255, 255)))),
+                                      : const Color.fromARGB(
+                                          59, 255, 255, 255)))),
                       onPressed: () {
                         ref
                             .read(sectionStateProvider.notifier)
@@ -69,7 +110,8 @@ class HomeScreen extends ConsumerWidget {
                               side: BorderSide(
                                   color: isLive
                                       ? const Color.fromARGB(59, 255, 255, 255)
-                                      : const Color.fromARGB(24, 255, 255, 255)))),
+                                      : const Color.fromARGB(
+                                          24, 255, 255, 255)))),
                       onPressed: () {
                         ref
                             .read(sectionStateProvider.notifier)

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:quiz_app/notifiers_providers/auth_provider.dart';
 
 class Question {
   const Question({
@@ -88,7 +89,7 @@ class AsyncQuizzesNotifier extends AsyncNotifier<List<Quiz>> {
     var request = http.Request('POST',
         Uri.parse('https://quiz-app-backend-s6uc.onrender.com/fetchQuizzes'));
     request.body = jsonEncode({
-      "author": "Me",
+      "author": credential!.user.sub,
     });
     request.headers.addAll(headers);
 

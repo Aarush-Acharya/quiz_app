@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quiz_app/notifiers_providers/auth_provider.dart';
 import 'package:quiz_app/notifiers_providers/quiz_notifier.dart';
 import 'package:quiz_app/theme/colors.dart';
 import 'package:http/http.dart' as http;
@@ -85,7 +86,7 @@ class CreateQuizDailog extends ConsumerWidget {
                   request.body = jsonEncode({
                     "name": nameController.text,
                     "description": descriptionController.text,
-                    "author": "Me",
+                    "author": credential!.user.sub,
                     "duration": int.parse(durationController.text)
                   });
                   request.headers.addAll(headers);
