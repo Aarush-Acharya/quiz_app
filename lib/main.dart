@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         appRoutes.editQuiz: (context) => const EditQuizScreen(),
         appRoutes.createQuestion: (context) => const CreateQuestionScreen(),
         appRoutes.editQuestion: (context) => const EditQuestionScreen(),
-        appRoutes.giveQuiz: (context) => GiveQuiz(),
+        appRoutes.giveQuiz: (context) => const GiveQuiz(),
       },
     );
   }

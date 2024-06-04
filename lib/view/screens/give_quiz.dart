@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gradient_animation_text/flutter_gradient_animation_text.dart';
@@ -22,7 +20,7 @@ class GiveQuiz extends ConsumerWidget {
     String quizName = args["quiz_name"];
     Quiz quiz = ref.read(asyncQuizzesProvider.notifier).getQuizByName(quizName);
     int selectedPage = ref.watch(pageStateProvider);
-    PageController _pageController = PageController(initialPage: selectedPage);
+    PageController pageController = PageController(initialPage: selectedPage);
     return Scaffold(
       body: SingleChildScrollView(
           child: Padding(
@@ -69,7 +67,7 @@ class GiveQuiz extends ConsumerWidget {
                     ringColor: Colors.grey[300]!,
                     fillColor: Colors.transparent,
                     fillGradient:
-                        LinearGradient(colors: [AppColors.blue, AppColors.red]),
+                        const LinearGradient(colors: [AppColors.blue, AppColors.red]),
                     backgroundColor: Colors.black,
                     strokeWidth: 2.0,
                     onComplete: () {
@@ -78,13 +76,13 @@ class GiveQuiz extends ConsumerWidget {
                           context: context,
                           builder: (context) => AlertDialog.adaptive(
                                 title:
-                                    Text("Oops Seems like you ran out of Time"),
+                                    const Text("Oops Seems like you ran out of Time"),
                                 actions: [
                                   TextButton(
                                       onPressed: () {
                                         Navigator.pop(context);
                                       },
-                                      child: Text("Continue"))
+                                      child: const Text("Continue"))
                                 ],
                               ));
                     },
@@ -108,7 +106,7 @@ class GiveQuiz extends ConsumerWidget {
                 SizedBox(
                   height: 380,
                   child: PageView(
-                    controller: _pageController,
+                    controller: pageController,
                     onPageChanged: (page) {
                       ref
                           .read(pageStateProvider.notifier)
@@ -169,7 +167,7 @@ class GiveQuiz extends ConsumerWidget {
                     duration: const Duration(milliseconds: 200),
                     boxShape: BoxShape.rectangle,
                     onItemClicked: (index) {
-                      _pageController.animateToPage(
+                      pageController.animateToPage(
                         index,
                         duration: const Duration(milliseconds: 200),
                         curve: Curves.easeInOut,
@@ -179,7 +177,7 @@ class GiveQuiz extends ConsumerWidget {
                 ),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 150,
             ),
             Align(
